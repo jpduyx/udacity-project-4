@@ -39,4 +39,6 @@ df.write.format("delta").mode("overwrite").save("/delta/bronze_trips")
 
 # COMMAND ----------
 
-
+# MAGIC %md
+# MAGIC 
+# MAGIC I checked that All data is exported to Databricks Delta files
