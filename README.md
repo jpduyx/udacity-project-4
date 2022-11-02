@@ -1,9 +1,9 @@
 # udacity-project-4 Azure Data Bricks
 
- [v] star schema star-erd.pdf
- * bronze datastore created in azure databricks with Delta Lake
- * gold datastore created in Delta Lake Tables
- * transform the data into star schema for the Gold data store
+ - [x] star schema star-erd.pdf
+ - [x] bronze datastore created in azure databricks with Delta Lake
+ - [ ] gold datastore created in Delta Lake Tables
+ - [ ] transform the data into star schema for the Gold data store
  
 
 ## Business outcomes 
@@ -23,28 +23,33 @@
 
 ## Deliverables: 
 
- [v] Star Schema
-   [v] 2 fact tables related to payment and trip information
-   [v] dimensions related to the trip data: riders, stations and date
-   [v] dimensions related to the payment data: dates and riders
-   
- * Extract
-  * python code in jupyter notebooks and scripts to extract information from CSV files stored in Databricks and write it to the Delta Filesystem
- !!??  * python code that picks up files from the Databricks file system storage and writes it out to Delta file location
-  
- * Load
-  * implement key features of data lakes on Azure: python code in notebook that contains code to create tables and loads data from Delta files. using spark.sql statements to create the tables and then load data from the files that were extracted in the Extract step.
-  
-  
- * Transform 
-  * 
-  * 
-  
-   
+- [x] Star Schema
  
+  - [x] 2 fact tables related to payment and trip information
+  - [x] dimensions related to the trip data: riders, stations and date
+  - [x] dimensions related to the payment data: dates and riders
+   
+   
+- [x] Extract
+ 
+  - [x] python code in jupyter notebooks and scripts to extract information from CSV files stored in Databricks and write it to the Delta Filesystem
+  - [x] python code that picks up files from the Databricks file system storage and writes it out to Delta file location
+  
+  
+- [ ] Load
+ 
+  - [ ] implement key features of data lakes on Azure: python code in notebook that contains code to create tables and loads data from Delta files. using spark.sql statements to create the tables and then load data from the files that were extracted in the Extract step.
+  
+  
+- [ ] Transform
+ 
+  - [ ] The fact table Python scripts should contain appropriate keys from the dimensions. In addition, the fact table scripts should appropriately generate the correct facts based on the diagrams provided in the first step. 
+  - [ ] The dimension Python scripts should match the schema diagram. Dimensions should generate appropriate keys and should not contain facts
+  - [ ] The transform scripts should at minimum adhere to the following: should write to delta; should use overwrite mode; save as a table in delta. 
+  
+   
   
  
-## TODO
 
  
 ## NOTE 
