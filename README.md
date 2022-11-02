@@ -36,9 +36,9 @@
   - [x] python code that picks up files from the Databricks file system storage and writes it out to Delta file location
   
   
-- [ ] Load
+- [x] Load
  
-  - [ ] implement key features of data lakes on Azure: python code in notebook that contains code to create tables and loads data from Delta files. using spark.sql statements to create the tables and then load data from the files that were extracted in the Extract step.
+  - [x] implement key features of data lakes on Azure: python code in notebook that contains code to create tables and loads data from Delta files. using spark.sql statements to create the tables and then load data from the files that were extracted in the Extract step.
   
   
 - [ ] Transform
