@@ -8,27 +8,75 @@
 # MAGIC The dimension Python scripts should match the schema diagram. Dimensions should generate appropriate keys and should not contain facts. 
 # MAGIC 
 # MAGIC **3. Produce Spark code in Databricks using Jupyter Notebooks and Python scripts** | 
-# MAGIC The transform scripts should at minimum adhere to the following: should write to delta; should use overwrite mode; save as a table in delta. 
+# MAGIC The transform scripts should at minimum adhere to the following: should write to delta; should use overwrite mode; **save as a table in delta**.
+# MAGIC 
+# MAGIC ## BUSINESS OUTCOMES
+# MAGIC 
+# MAGIC 1. Analyze how much time spend per ride, based on
+# MAGIC    
+# MAGIC    * [ ] date and time factors such as day of week and time of day 
+# MAGIC    * which station is starting and / or ending station
+# MAGIC    * age of the rider at time of the ride
+# MAGIC    * whether the rider is a (paying) member or casual rider
+# MAGIC    
+# MAGIC  2. Analyze how much money is spend: 
+# MAGIC 
+# MAGIC   * per month, quarter, year 
+# MAGIC   * per member, based on the age of the rider at account start
 
 # COMMAND ----------
 
 # DBTITLE 1,dimRider
-silver = "silver_riders"
+silver = "silver.riders"
 gold = "dimRider"
-create = "CREATE TABLE %s (id INT, firs VARCHAR(40), last VARCHAR (40), birthday DATE, \
-                           account_start DATE, account_end DATE, is_member BOOL )" % (gold)
-spark.sql(create)
-
+#create = "CREATE TABLE %s (id INT, firs VARCHAR(40), last VARCHAR (40), birthday DATE, account_start DATE, account_end DATE, is_member BOOLEAN )" % (gold)
+#spark.sql(create)
+silverdf = spark.sql(f"SELECT * FROM {silver}")
+silverdf
+silverdf.show()
+df = silverdf
+df.write.mode("overwrite").save(f"/delta/{gold}")
 
 # COMMAND ----------
 
 # DBTITLE 1,dimStation
-silver = "silver_stations"
+silver = "silver.stations"
 gold = "dimStation"
 
-create = "CREATE TABLE %s (id VARCHAR(40), name VARCHAR(50), \
-                           latitude FLOAT, longitude FLOAT )" % (gold)
-spark.sql(create)
+#create = "CREATE TABLE %s (id VARCHAR(50), name VARCHAR(150), \
+#                           latitude FLOAT, longitude FLOAT )" % (gold)
+
+silverdf = spark.sql(f"SELECT * FROM {silver}")
+silverdf.show()
+df = silverdf
+df.write.mode("overwrite").save(f"/delta/{gold}")
+
+
+# COMMAND ----------
+
+# DBTITLE 1,factPayment
+silver = "silver.payments"
+gold = "factPayment"
+
+#create = "CREATE TABLE %s (id INT, date DATE, amount FLOAT, rider INT)" % (gold)
+#spark.sql(create)
+
+silverdf = spark.sql(f"SELECT * FROM {silver}")
+silverdf.show()
+df = silverdf
+df.write.mode("overwrite").save(f"/delta/{gold}")
+
+
+# COMMAND ----------
+
+# DBTITLE 1,factTrip
+silver = "silver.trips"
+gold = "factTrip"
+
+silverdf = spark.sql(f"SELECT * FROM {silver}")
+silverdf.show()
+df = silverdf
+df.write.mode("overwrite").save(f"/delta/{gold}")
 
 # COMMAND ----------
 
@@ -59,24 +107,3 @@ from
 """
 spark.sql(create)
 spark.sql("optimize dimDate zorder by (ts)")
-
-# COMMAND ----------
-
-# DBTITLE 1,factPayment
-silver = "silver_payments"
-gold = "factPayment"
-
-create = "CREATE TABLE %s (id INT, firs VARCHAR(40), last VARCHAR (40), birthday DATE, \
-                           account_start DATE, account_end DATE, is_member BOOL )" % (gold)
-spark.sql(create)
-
-
-# COMMAND ----------
-
-# DBTITLE 1,factTrip
-silver = "silver_trips"
-gold = "factTrip"
-
-create = "CREATE TABLE %s (id INT, firs VARCHAR(40), last VARCHAR (40), birthday DATE, \
-                           account_start DATE, account_end DATE, is_member BOOL )" % (gold)
-spark.sql(create)
