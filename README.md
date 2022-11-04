@@ -2,8 +2,9 @@
 
  - [x] star schema star-erd.pdf
  - [x] bronze datastore created in azure databricks with Delta Lake
- - [ ] gold datastore created in Delta Lake Tables
- - [ ] transform the data into star schema for the Gold data store
+ - [x] gold datastore created in Delta Lake Tables
+ - [?] transform the data into star schema for the Gold data store
+
  
 
 ## Business outcomes 
