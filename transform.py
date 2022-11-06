@@ -54,40 +54,6 @@ df.write.mode("overwrite").save(f"/delta/{gold}")
 
 # COMMAND ----------
 
-# DBTITLE 1,factPayment
-silver = "silver.payments"
-gold = "factPayment"
-
-#create = "CREATE TABLE %s (id INT, date DATE, amount FLOAT, rider INT)" % (gold)
-#spark.sql(create)
-
-silverdf = spark.sql(f"SELECT * FROM {silver}")
-silverdf.show()
-df = silverdf
-df.write.mode("overwrite").save(f"/delta/{gold}")
-
-
-# COMMAND ----------
-
-# DBTITLE 1,factTrip
-import pyspark.sql.functions as F
-
-silver = "silver.trips"
-rider = "silver.riders"
-gold = "factTrip"
-
-joineddf = spark.sql(f"""SELECT t.id, t.start_at, t.ended_at, t.duration, t.start_station, t.dest_station, t.rideable_type, t.rider_id, 
-                                CAST (datediff (year, r.birthday, t.start_at) AS INTEGER) as rider_age 
-                         FROM {silver} as t
-                         LEFT JOIN {rider} as r ON t.rider_id = r.id
-                      """)
-df = joineddf.withColumn("duration",(F.col("ended_at").cast("int") - F.col("start_at").cast("int")))
-df
-df.show(5, truncate=False)
-df.write.mode("overwrite").save(f"/delta/{gold}")
-
-# COMMAND ----------
-
 # DBTITLE 1,dimDate
 from pyspark.sql.functions import explode, sequence, to_date
 from dateutil.relativedelta import relativedelta
@@ -121,3 +87,37 @@ from
 spark.sql(create)
 spark.sql("optimize dimDate zorder by (ts)")
 
+
+# COMMAND ----------
+
+# DBTITLE 1,factPayment
+silver = "silver.payments"
+gold = "factPayment"
+
+#create = "CREATE TABLE %s (id INT, date DATE, amount FLOAT, rider INT)" % (gold)
+#spark.sql(create)
+
+silverdf = spark.sql(f"SELECT * FROM {silver}")
+silverdf.show()
+df = silverdf
+df.write.mode("overwrite").save(f"/delta/{gold}")
+
+
+# COMMAND ----------
+
+# DBTITLE 1,factTrip
+import pyspark.sql.functions as F
+
+silver = "silver.trips"
+rider = "silver.riders"
+gold = "factTrip"
+
+joineddf = spark.sql(f"""SELECT t.id, t.start_at, t.ended_at, t.duration, t.start_station, t.dest_station, t.rideable_type, t.rider_id, 
+                                CAST (datediff (year, r.birthday, t.start_at) AS INTEGER) as rider_age 
+                         FROM {silver} as t
+                         LEFT JOIN {rider} as r ON t.rider_id = r.id
+                      """)
+df = joineddf.withColumn("duration",(F.col("ended_at").cast("int") - F.col("start_at").cast("int")))
+df
+df.show(5, truncate=False)
+df.write.mode("overwrite").save(f"/delta/{gold}")
