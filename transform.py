@@ -70,29 +70,41 @@ df.write.mode("overwrite").save(f"/delta/{gold}")
 # COMMAND ----------
 
 # DBTITLE 1,factTrip
+import pyspark.sql.functions as F
+
 silver = "silver.trips"
+rider = "silver.riders"
 gold = "factTrip"
 
-silverdf = spark.sql(f"SELECT * FROM {silver}")
-silverdf.show()
-df = silverdf
+joineddf = spark.sql(f"""SELECT t.id, t.start_at, t.ended_at, t.duration, t.start_station, t.dest_station, t.rideable_type, t.rider_id, 
+                                CAST (datediff (year, r.birthday, t.start_at) AS INTEGER) as rider_age 
+                         FROM {silver} as t
+                         LEFT JOIN {rider} as r ON t.rider_id = r.id
+                      """)
+df = joineddf.withColumn("duration",(F.col("ended_at").cast("int") - F.col("start_at").cast("int")))
+df
+df.show(5, truncate=False)
 df.write.mode("overwrite").save(f"/delta/{gold}")
 
 # COMMAND ----------
 
 # DBTITLE 1,dimDate
 from pyspark.sql.functions import explode, sequence, to_date
+from dateutil.relativedelta import relativedelta
+import pyspark.sql.functions as F
 
-df = spark.sql("SELECT min (to_date(start_at)) as beginDate, add_months(max (to_date(ended_at)),12) as endDate FROM silver_trips")
+silver = "silver.trips"
 
-beginDate = df.first()["beginDate"]
-endDate = df.first()["endDate"]
+(beginDate, endDate) = spark.sql(f"SELECT min (to_date(start_at)) as beginDate, add_months(max (to_date(ended_at)),12) as endDate FROM {silver}").first()
+endDate = endDate + relativedelta(months=24)
 
-spark.sql(f"select explode(sequence(to_timestamp('{beginDate}'), to_timestamp('{endDate}'), interval 1 hour)) as ts") \
+spark.sql(f"select explode(sequence(to_timestamp('{beginDate}'), (to_timestamp('{endDate}')) , interval 1 hour)) as ts") \
     .createOrReplaceTempView('dates')
 
 create = """
 create or replace table dimDate
+USING delta
+LOCATION '/delta/dimDate'
 as select
   ts,
   hour(ts) AS hour,
@@ -105,5 +117,7 @@ as select
 from
   dates
 """
+
 spark.sql(create)
 spark.sql("optimize dimDate zorder by (ts)")
+
