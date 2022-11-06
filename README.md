@@ -3,7 +3,7 @@
  - [x] star schema star-erd.pdf
  - [x] bronze datastore created in azure databricks with Delta Lake
  - [x] gold datastore created in Delta Lake Tables
- - [?] transform the data into star schema for the Gold data store
+ - [x] transform the data into star schema for the Gold data store
 
  
 
@@ -42,11 +42,11 @@
   - [x] implement key features of data lakes on Azure: python code in notebook that contains code to create tables and loads data from Delta files. using spark.sql statements to create the tables and then load data from the files that were extracted in the Extract step.
   
   
-- [ ] Transform
+- [x] Transform
  
-  - [ ] The fact table Python scripts should contain appropriate keys from the dimensions. In addition, the fact table scripts should appropriately generate the correct facts based on the diagrams provided in the first step. 
-  - [ ] The dimension Python scripts should match the schema diagram. Dimensions should generate appropriate keys and should not contain facts
-  - [ ] The transform scripts should at minimum adhere to the following: should write to delta; should use overwrite mode; save as a table in delta. 
+  - [x] The fact table Python scripts should contain appropriate keys from the dimensions. In addition, the fact table scripts should appropriately generate the correct facts based on the diagrams provided in the first step. 
+  - [x] The dimension Python scripts should match the schema diagram. Dimensions should generate appropriate keys and should not contain facts
+  - [x] The transform scripts should at minimum adhere to the following: should write to delta; should use overwrite mode; save as a table in delta. 
   
    
   
