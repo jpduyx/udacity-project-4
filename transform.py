@@ -29,13 +29,11 @@
 # DBTITLE 1,dimRider
 silver = "silver.riders"
 gold = "dimRider"
-#create = "CREATE TABLE %s (id INT, firs VARCHAR(40), last VARCHAR (40), birthday DATE, account_start DATE, account_end DATE, is_member BOOLEAN )" % (gold)
-#spark.sql(create)
 silverdf = spark.sql(f"SELECT * FROM {silver}")
-silverdf
-silverdf.show()
+#silverdf
+silverdf.show(5)
 df = silverdf
-df.write.mode("overwrite").save(f"/delta/{gold}")
+df.write.format("delta").mode("overwrite").saveAsTable(f"{gold}")
 
 # COMMAND ----------
 
@@ -47,9 +45,10 @@ gold = "dimStation"
 #                           latitude FLOAT, longitude FLOAT )" % (gold)
 
 silverdf = spark.sql(f"SELECT * FROM {silver}")
-silverdf.show()
+silverdf.show(5)
 df = silverdf
-df.write.mode("overwrite").save(f"/delta/{gold}")
+#df.write.mode("overwrite").save(f"/delta/{gold}")
+df.write.format("delta").mode("overwrite").saveAsTable(f"{gold}")
 
 
 # COMMAND ----------
@@ -59,9 +58,9 @@ from pyspark.sql.functions import explode, sequence, to_date
 from dateutil.relativedelta import relativedelta
 import pyspark.sql.functions as F
 
-silver = "silver.trips"
-
-(beginDate, endDate) = spark.sql(f"SELECT min (to_date(start_at)) as beginDate, add_months(max (to_date(ended_at)),12) as endDate FROM {silver}").first()
+trips = "silver.trips"
+gold = "dimDate"
+(beginDate, endDate) = spark.sql(f"SELECT min (to_date(start_at)) as beginDate, add_months(max (to_date(ended_at)),12) as endDate FROM {trips}").first()
 endDate = endDate + relativedelta(months=24)
 
 spark.sql(f"select explode(sequence(to_timestamp('{beginDate}'), (to_timestamp('{endDate}')) , interval 1 hour)) as ts") \
@@ -69,8 +68,8 @@ spark.sql(f"select explode(sequence(to_timestamp('{beginDate}'), (to_timestamp('
 
 create = """
 create or replace table dimDate
-USING delta
-LOCATION '/delta/dimDate'
+-- USING delta
+-- LOCATION '/delta/dimDate'
 as select
   ts,
   hour(ts) AS hour,
@@ -86,6 +85,10 @@ from
 
 spark.sql(create)
 spark.sql("optimize dimDate zorder by (ts)")
+df = spark.sql("select * from dimDate")
+df.show(5)
+# HMMM how to go from spark.sql table to df to write ? 
+df.write.format("delta").mode("overwrite").saveAsTable(f"{gold}")
 
 
 # COMMAND ----------
@@ -98,10 +101,10 @@ gold = "factPayment"
 #spark.sql(create)
 
 silverdf = spark.sql(f"SELECT * FROM {silver}")
-silverdf.show()
+silverdf.show(5)
 df = silverdf
-df.write.mode("overwrite").save(f"/delta/{gold}")
-
+#df.write.mode("overwrite").save(f"/delta/{gold}")
+df.write.format("delta").mode("overwrite").saveAsTable(f"{gold}")
 
 # COMMAND ----------
 
@@ -118,6 +121,5 @@ joineddf = spark.sql(f"""SELECT t.id, t.start_at, t.ended_at, t.duration, t.star
                          LEFT JOIN {rider} as r ON t.rider_id = r.id
                       """)
 df = joineddf.withColumn("duration",(F.col("ended_at").cast("int") - F.col("start_at").cast("int")))
-df
 df.show(5, truncate=False)
-df.write.mode("overwrite").save(f"/delta/{gold}")
+df.write.format("delta").mode("overwrite").saveAsTable(f"{gold}")
